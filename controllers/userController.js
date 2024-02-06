@@ -6,6 +6,7 @@ module.exports = {
             const users = await User.find({});
             res.json(users)
         } catch (error) {
+            console.log(error)
             res.status(500).json(error)
         }
     },
@@ -48,12 +49,44 @@ module.exports = {
         }
     },
 
-    async deleteUser(req, res) {
+    async addFriend(req, res) {
         try {
-            const user = await User.findByIdAndDelete(req.params.id, req.body);
+            const user = await User.findByIdAndUpdate(req.params.userId, {
+                $set: {friends: req.params.friendId}
+            }, { new: true });
 
             if (!user) {
-                res.status(404).json({ message: 'No course  with this id!' });
+                res.status(400).json({ message: 'No user with this id!' });
+            }
+
+            res.json(user);
+        } catch (error) {
+            res.status(500).json(error)
+        }
+    },
+
+    async deleteFriend(req, res) {
+        try {
+            const user = await User.findByIdAndUpdate(req.params.userId, {
+                $pull: {friends: req.params.friendId}
+            }, { new: true });
+
+            if (!user) {
+                res.status(400).json({ message: 'No user with this id!' });
+            }
+
+            res.json(user);
+        } catch (error) {
+            res.status(500).json(error)
+        }
+    },
+
+    async deleteUser(req, res) {
+        try {
+            const user = await User.findByIdAndDelete(req.params.id);
+
+            if (!user) {
+                res.status(404).json({ message: 'No user with this id!' });
             }
 
             res.json(user);
